@@ -30,7 +30,11 @@ public class SteamWeb {
         return Req(url, method, data, cookies, headers, APIEndpoints.COMMUNITY_BASE + "/mobilelogin?oauth_client_id=DE45CD61&oauth_scope=read_profile%20write_profile%20read_client%20write_client");
     }
     
-    public static String InnerRequest(String url, String method, String dataString, /*CookieManager cookies, */List<Map.Entry<String, String>> headers, String referer) {
+    public static String InnerRequest(String url, 
+    		String method, 
+    		String dataString, 
+    		List<Map.Entry<String, String>> headers, 
+    		String referer) {
     	CookieManager cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
     	
     	OkHttpClient client = new OkHttpClient.Builder()
