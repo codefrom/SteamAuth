@@ -10,22 +10,11 @@
   <name>SteamAuth</name>
   <url>http://maven.apache.org</url>
 
-  <repositories>
-    <repository>
-	  <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
-    </repository>
-  </repositories>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
-	<dependency>
-	    <groupId>com.github.franmontiel</groupId>
-	    <artifactId>PersistentCookieJar</artifactId>
-	    <version>c034c855821dfe920a1e3dd024c3dca23d247914</version>
-	</dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

@@ -1,21 +1,20 @@
 package ru.codebehind.steam.mobileauthentication;
 
 import java.io.IOException;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
-import okhttp3.JavaNetCookieJar;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import ru.codebehind.okhttp.cookies.SimpleCookieJar;
 
 public class SteamWeb {
-	
+	public static SimpleCookieJar StaticCookieJar = new SimpleCookieJar();
 	public static String UserAgent = "Mozilla/5.0 (Linux; Android 4.4.4; Xperia S Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/33.0.0.0 Mobile Safari/537.36";
 	
     /** 
@@ -36,15 +35,15 @@ public class SteamWeb {
     		String dataString, 
     		List<Map.Entry<String, String>> headers, 
     		List<Map.Entry<String, String>> params,
-    		CookieManager cookieManager,
+    		CookieJar cookieJar,
     		String referer) throws Throwable {
-    	CookieManager realCookieManager = cookieManager;
-    	if (realCookieManager == null) {
-    		realCookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
+    	CookieJar realCookieJar = cookieJar;
+    	if (realCookieJar == null) {
+    		realCookieJar = StaticCookieJar;
     	}
 
     	OkHttpClient client = new OkHttpClient.Builder()
-    			.cookieJar(new JavaNetCookieJar(realCookieManager))
+    			.cookieJar(realCookieJar)
     			.build();
     	
     	HttpUrl.Builder uriBuilder = HttpUrl.parse(url).newBuilder();
