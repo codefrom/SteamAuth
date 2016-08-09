@@ -26,13 +26,19 @@ public class SteamWeb {
      * @param headers 
      * @return response body
      */
-    /*public static String MobileLoginRequest(String url, String method, List<NameValuePair> data, CookieStore cookies, List<NameValuePair> headers) throws Throwable {
-        return Req(url, method, data, cookies, headers, APIEndpoints.COMMUNITY_BASE + "/mobilelogin?oauth_client_id=DE45CD61&oauth_scope=read_profile%20write_profile%20read_client%20write_client");
-    }*/
+    public static String MobileLoginRequest(String url, String method, List<Map.Entry<String, String>> data, CookieJar cookies, List<Map.Entry<String, String>> headers) throws Throwable {
+        return DoRequest(url, 
+        				 method,
+        				 null,
+        				 headers,
+        				 data, 
+        				 cookies, 
+        				 APIEndpoints.COMMUNITY_BASE + "/mobilelogin?oauth_client_id=DE45CD61&oauth_scope=read_profile%20write_profile%20read_client%20write_client");
+    }
     
     public static String DoRequest(String url, 
-    		String method, 
-    		String dataString, 
+    		String method,
+    		String dataString,
     		List<Map.Entry<String, String>> headers, 
     		List<Map.Entry<String, String>> params,
     		CookieJar cookieJar,
@@ -47,9 +53,11 @@ public class SteamWeb {
     			.build();
     	
     	HttpUrl.Builder uriBuilder = HttpUrl.parse(url).newBuilder();
-    	for (Map.Entry<String, String> param : params) {
-			uriBuilder.addQueryParameter(param.getKey(), param.getValue());
-		}
+    	if (params != null) {
+	    	for (Map.Entry<String, String> param : params) {
+				uriBuilder.addQueryParameter(param.getKey(), param.getValue());
+			}
+    	}
 
     	Request.Builder reqBuilder = new Request.Builder()
     			.url(uriBuilder.build())
@@ -61,9 +69,11 @@ public class SteamWeb {
     			.header("User-Agent", UserAgent)
     			.header("Referer", referer);
     	
-    	for (Map.Entry<String, String> header : headers) {
-    		reqBuilder.addHeader(header.getKey(), header.getValue());
-		}
+    	if (headers != null) {
+	    	for (Map.Entry<String, String> header : headers) {
+	    		reqBuilder.addHeader(header.getKey(), header.getValue());
+			}
+    	}
     	
     	if (method.equalsIgnoreCase("post")) {
     		reqBuilder.post(RequestBody.create(
