@@ -1,64 +1,100 @@
 package ru.codebehind.steam.mobileauthentication;
 
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.RSAPrivateKeySpec;
+import java.security.spec.RSAPublicKeySpec;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+
+import javax.crypto.Cipher;
+
+import okhttp3.Cookie;
 import okhttp3.CookieJar;
+import ru.codebehind.okhttp.NameValuePairList;
 import ru.codebehind.okhttp.cookies.SimpleCookieJar;
+import ru.codebehind.steam.mobileauthentication.model.LoginRequest;
+import ru.codebehind.steam.mobileauthentication.model.LoginResult;
+import ru.codebehind.steam.mobileauthentication.model.RSAResponse;
+import ru.codebehind.toolbelt.JacksonSerive;
 
 public class UserLoginService {
-    private CookieJar _cookies = new SimpleCookieJar();
-
+    private SimpleCookieJar _cookies = new SimpleCookieJar();
     
-    public LoginResult DoLogin()
+    public LoginResult DoLogin(LoginRequest request)
     {
-        var postData = new NameValueCollection();
-        var cookies = _cookies;
-        string response = null;
+    	NameValuePairList postData = new NameValuePairList(); 
+        String response = null;
 
-        if (cookies.Count == 0)
+        if (_cookies.count() == 0)
         {
             //Generate a SessionID
-            cookies.Add(new Cookie("mobileClientVersion", "0 (2.1.3)", "/", ".steamcommunity.com"));
-            cookies.Add(new Cookie("mobileClient", "android", "/", ".steamcommunity.com"));
-            cookies.Add(new Cookie("Steam_Language", "english", "/", ".steamcommunity.com"));
+        	_cookies.add((new Cookie.Builder()).name("mobileClientVersion").value("0 (2.1.3)").path("/").domain(".steamcommunity.com").build());
+        	_cookies.add((new Cookie.Builder()).name("mobileClient").value("android").path("/").domain(".steamcommunity.com").build());
+        	_cookies.add((new Cookie.Builder()).name("Steam_Language").value("english").path("/").domain(".steamcommunity.com").build());
 
-            NameValueCollection headers = new NameValueCollection();
-            headers.Add("X-Requested-With", "com.valvesoftware.android.steam.community");
+        	NameValuePairList headers = new NameValuePairList();
+            headers.add("X-Requested-With", "com.valvesoftware.android.steam.community");
 
-            SteamWeb.MobileLoginRequest("https://steamcommunity.com/login?oauth_client_id=DE45CD61&oauth_scope=read_profile%20write_profile%20read_client%20write_client", "GET", null, cookies, headers);
+            SteamWeb.MobileLoginRequest("https://steamcommunity.com/login?oauth_client_id=DE45CD61&oauth_scope=read_profile%20write_profile%20read_client%20write_client", 
+            		"GET", 
+            		null, 
+            		_cookies, 
+            		headers);
         }
 
-        postData.Add("username", this.Username);
-        response = SteamWeb.MobileLoginRequest(APIEndpoints.COMMUNITY_BASE + "/login/getrsakey", "POST", postData, cookies);
-        if (response == null || response.Contains("<BODY>\nAn error occurred while processing your request.")) return LoginResult.GeneralFailure;
+        postData.add("username", request.getUsername());
+        response = SteamWeb.MobileLoginRequest(APIEndpoints.COMMUNITY_BASE + "/login/getrsakey", 
+        		"POST", 
+        		postData, 
+        		_cookies, 
+        		null);
+        if (response == null || response.contains("<BODY>\nAn error occurred while processing your request.")) 
+        	return LoginResult.GeneralFailure;
+        
+        RSAResponse rsaResponse = JacksonSerive.Deserialize(RSAResponse.class, response);
 
-        var rsaResponse = JsonConvert.DeserializeObject<RSAResponse>(response);
-
-        if (!rsaResponse.Success)
-        {
+        if (!rsaResponse.isSuccess())
             return LoginResult.BadRSA;
-        }
+        
+        String encryptedPassword;
+        byte[] passwordBytes = request.getPassword().getBytes("ASCII");
+        try {
+        	BigInteger modulus = new BigInteger(rsaResponse.getModulus(), 16);
+        	BigInteger exponent = new BigInteger(rsaResponse.getExponent(), 16);
+        			
+        	RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, exponent);
 
-        RNGCryptoServiceProvider secureRandom = new RNGCryptoServiceProvider();
-        byte[] encryptedPasswordBytes;
-        using (var rsaEncryptor = new RSACryptoServiceProvider())
-        {
-            var passwordBytes = Encoding.ASCII.GetBytes(this.Password);
-            var rsaParameters = rsaEncryptor.ExportParameters(false);
-            rsaParameters.Exponent = Util.HexStringToByteArray(rsaResponse.Exponent);
-            rsaParameters.Modulus = Util.HexStringToByteArray(rsaResponse.Modulus);
-            rsaEncryptor.ImportParameters(rsaParameters);
-            encryptedPasswordBytes = rsaEncryptor.Encrypt(passwordBytes, false);
-        }
+        	KeyFactory factory = KeyFactory.getInstance("RSA");
+        			
+        	PublicKey pub = factory.generatePublic(spec);
+        	
+        	Cipher cipher = Cipher.getInstance("RSA/ECB/NoPadding");
+        	cipher.init(Cipher.ENCRYPT_MODE, pub);
 
-        string encryptedPassword = Convert.ToBase64String(encryptedPasswordBytes);
+        	encryptedPassword = new String(Base64.getEncoder().encode(cipher.doFinal(passwordBytes)));
+    	} catch(Exception e) {
+    	}        
 
-        postData.Clear();
-        postData.Add("username", this.Username);
-        postData.Add("password", encryptedPassword);
+        postData.clear();
+        postData.add("username", request.getUsername());
+        postData.add("password", encryptedPassword);
 
-        postData.Add("twofactorcode", this.TwoFactorCode ?? "");
+        postData.add("twofactorcode", request.getTwoFactorCode());
 
-        postData.Add("captchagid", this.RequiresCaptcha ? this.CaptchaGID : "-1");
-        postData.Add("captcha_text", this.RequiresCaptcha ? this.CaptchaText : "");
+        if (request.isRequiresCaptcha()) { 
+        	postData.add("captchagid", request.getCaptchaGID());
+        	postData.Add("captcha_text", request.getCaptchaText());
+        } else {
+        	postData.add("captchagid", "-1");
+        	postData.Add("captcha_text", "");
+    	}
 
         postData.Add("emailsteamid", (this.Requires2FA || this.RequiresEmail) ? this.SteamID.ToString() : "");
         postData.Add("emailauth", this.RequiresEmail ? this.EmailCode : "");

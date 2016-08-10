@@ -1,8 +1,6 @@
 package ru.codebehind.steam.mobileauthentication;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
@@ -11,6 +9,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import ru.codebehind.okhttp.NameValuePairList;
 import ru.codebehind.okhttp.cookies.SimpleCookieJar;
 
 public class SteamWeb {
@@ -26,7 +25,11 @@ public class SteamWeb {
      * @param headers 
      * @return response body
      */
-    public static String MobileLoginRequest(String url, String method, List<Map.Entry<String, String>> data, CookieJar cookies, List<Map.Entry<String, String>> headers) throws Throwable {
+    public static String MobileLoginRequest(String url, 
+    		String method, 
+    		NameValuePairList data, 
+    		CookieJar cookies, 
+    		NameValuePairList headers) throws Throwable {
         return DoRequest(url, 
         				 method,
         				 null,
@@ -39,8 +42,8 @@ public class SteamWeb {
     public static String DoRequest(String url, 
     		String method,
     		String dataString,
-    		List<Map.Entry<String, String>> headers, 
-    		List<Map.Entry<String, String>> params,
+    		NameValuePairList headers, 
+    		NameValuePairList params,
     		CookieJar cookieJar,
     		String referer) throws Throwable {
     	CookieJar realCookieJar = cookieJar;
@@ -54,8 +57,8 @@ public class SteamWeb {
     	
     	HttpUrl.Builder uriBuilder = HttpUrl.parse(url).newBuilder();
     	if (params != null) {
-	    	for (Map.Entry<String, String> param : params) {
-				uriBuilder.addQueryParameter(param.getKey(), param.getValue());
+	    	for (NameValuePairList.NameValuePair param : params) {
+				uriBuilder.addQueryParameter(param.getName(), param.getValue());
 			}
     	}
 
@@ -70,8 +73,8 @@ public class SteamWeb {
     			.header("Referer", referer);
     	
     	if (headers != null) {
-	    	for (Map.Entry<String, String> header : headers) {
-	    		reqBuilder.addHeader(header.getKey(), header.getValue());
+	    	for (NameValuePairList.NameValuePair header : headers) {
+	    		reqBuilder.addHeader(header.getName(), header.getValue());
 			}
     	}
     	

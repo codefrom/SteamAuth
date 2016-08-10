@@ -37,4 +37,12 @@ public class SimpleCookieJar implements CookieJar {
 		cookies.addAll(newCookies);
 	}
 
+	public int count() {
+		return cookies.size();
+	}
+
+	public void add(Cookie cookie) {
+		cookies.add(cookie);
+	}
+
 }
