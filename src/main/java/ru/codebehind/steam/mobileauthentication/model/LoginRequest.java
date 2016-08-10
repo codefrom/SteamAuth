@@ -1,22 +1,17 @@
 package ru.codebehind.steam.mobileauthentication.model;
 
 public class LoginRequest {
-	public static class SessionData {
-	}
-	
     private String username;
     private String password;
     private long steamID;
     private boolean requiresCaptcha;
+    private boolean requiresEmail;
+    private boolean requires2FA;
     private String captchaGID;
     private String captchaText;
-    private boolean requiresEmail;
     private String emailDomain;
     private String emailCode;
-    private boolean requires2FA;
     private String twoFactorCode;
-    private SessionData session;
-    private boolean loggedIn = false;
     
 	public String getUsername() {
 		return username;
@@ -83,17 +78,5 @@ public class LoginRequest {
 	}
 	public void setTwoFactorCode(String twoFactorCode) {
 		this.twoFactorCode = twoFactorCode;
-	}
-	public SessionData getSession() {
-		return session;
-	}
-	public void setSession(SessionData session) {
-		this.session = session;
-	}
-	public boolean isLoggedIn() {
-		return loggedIn;
-	}
-	public void setLoggedIn(boolean loggedIn) {
-		this.loggedIn = loggedIn;
 	}
 }

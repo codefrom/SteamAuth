@@ -1,34 +1,247 @@
 package ru.codebehind.steam.mobileauthentication;
 
 import java.math.BigInteger;
-import java.nio.charset.Charset;
 import java.security.KeyFactory;
-import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.util.Date;
 
 import javax.crypto.Cipher;
 
+import org.apache.commons.codec.binary.Base64;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import okhttp3.Cookie;
-import okhttp3.CookieJar;
 import ru.codebehind.okhttp.NameValuePairList;
 import ru.codebehind.okhttp.cookies.SimpleCookieJar;
 import ru.codebehind.steam.mobileauthentication.model.LoginRequest;
 import ru.codebehind.steam.mobileauthentication.model.LoginResult;
-import ru.codebehind.steam.mobileauthentication.model.RSAResponse;
+import ru.codebehind.steam.mobileauthentication.model.LoginResultState;
 import ru.codebehind.toolbelt.JacksonSerive;
 
 public class UserLoginService {
+    public static class LoginResponse
+    {
+        public static class OAuth
+        {
+            @JsonProperty(value="steamid")
+            private long steamID;
+
+            @JsonProperty(value="oauth_token")
+            private String oauthToken;
+            
+            @JsonProperty(value="wgtoken")
+            private String steamLogin;
+
+            @JsonProperty(value="wgtoken_secure")
+            private String steamLoginSecure;
+
+            @JsonProperty(value="webcookie")
+            private String webcookie;
+
+			public long getSteamID() {
+				return steamID;
+			}
+
+			public void setSteamID(long steamID) {
+				this.steamID = steamID;
+			}
+
+			public String getOAuthToken() {
+				return oauthToken;
+			}
+
+			public void setOAuthToken(String oauthToken) {
+				this.oauthToken = oauthToken;
+			}
+
+			public String getSteamLogin() {
+				return steamLogin;
+			}
+
+			public void setSteamLogin(String steamLogin) {
+				this.steamLogin = steamLogin;
+			}
+
+			public String getSteamLoginSecure() {
+				return steamLoginSecure;
+			}
+
+			public void setSteamLoginSecure(String steamLoginSecure) {
+				this.steamLoginSecure = steamLoginSecure;
+			}
+
+			public String getWebcookie() {
+				return webcookie;
+			}
+
+			public void setWebcookie(String webcookie) {
+				this.webcookie = webcookie;
+			}            
+        }
+        
+        @JsonProperty(value="success")
+        private boolean success;
+
+        @JsonProperty(value="login_complete")
+        private boolean loginComplete;
+
+        @JsonProperty(value="oauth")
+        private OAuth OAuthData;
+        
+        @JsonProperty(value="captcha_needed")
+        private boolean captchaNeeded;
+
+        @JsonProperty(value="captcha_gid")
+        private String captchaGID;
+
+        @JsonProperty(value="emailsteamid")
+        private long emailSteamID;
+
+        @JsonProperty(value="emailauth_needed")
+        private boolean emailAuthNeeded;
+
+        @JsonProperty(value="requires_twofactor")
+        private boolean twoFactorNeeded;
+
+        @JsonProperty(value="message")
+        private String message;
+
+		public boolean isSuccess() {
+			return success;
+		}
+
+		public void setSuccess(boolean success) {
+			this.success = success;
+		}
+
+		public boolean isLoginComplete() {
+			return loginComplete;
+		}
+
+		public void setLoginComplete(boolean loginComplete) {
+			this.loginComplete = loginComplete;
+		}
+
+		public OAuth getOAuthData() {
+			return OAuthData;
+		}
+
+		public void setOAuthData(OAuth oAuthData) {
+			OAuthData = oAuthData;
+		}
+
+		public boolean isCaptchaNeeded() {
+			return captchaNeeded;
+		}
+
+		public void setCaptchaNeeded(boolean captchaNeeded) {
+			this.captchaNeeded = captchaNeeded;
+		}
+
+		public String getCaptchaGID() {
+			return captchaGID;
+		}
+
+		public void setCaptchaGID(String captchaGID) {
+			this.captchaGID = captchaGID;
+		}
+
+		public long getEmailSteamID() {
+			return emailSteamID;
+		}
+
+		public void setEmailSteamID(long emailSteamID) {
+			this.emailSteamID = emailSteamID;
+		}
+
+		public boolean isEmailAuthNeeded() {
+			return emailAuthNeeded;
+		}
+
+		public void setEmailAuthNeeded(boolean emailAuthNeeded) {
+			this.emailAuthNeeded = emailAuthNeeded;
+		}
+
+		public boolean isTwoFactorNeeded() {
+			return twoFactorNeeded;
+		}
+
+		public void setTwoFactorNeeded(boolean twoFactorNeeded) {
+			this.twoFactorNeeded = twoFactorNeeded;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+    }
+    
+    public static class RSAResponse
+    {
+        @JsonProperty(value="success")
+        private boolean success;
+
+        @JsonProperty(value="publickey_exp")
+        private String exponent;
+
+        @JsonProperty(value="publickey_mod")
+        private String modulus;
+
+        @JsonProperty(value="timestamp")
+        private String timestamp;
+
+        @JsonProperty(value="steamid")
+        private long steamID;
+
+		public boolean isSuccess() {
+			return success;
+		}
+
+		public void setSuccess(boolean success) {
+			this.success = success;
+		}
+
+		public String getExponent() {
+			return exponent;
+		}
+
+		public void setExponent(String exponent) {
+			this.exponent = exponent;
+		}
+
+		public String getModulus() {
+			return modulus;
+		}
+
+		public void setModulus(String modulus) {
+			this.modulus = modulus;
+		}
+
+		public String getTimestamp() {
+			return timestamp;
+		}
+
+		public void setTimestamp(String timestamp) {
+			this.timestamp = timestamp;
+		}
+
+		public long getSteamID() {
+			return steamID;
+		}
+
+		public void setSteamID(long steamID) {
+			this.steamID = steamID;
+		}
+    }	
+	
     private SimpleCookieJar _cookies = new SimpleCookieJar();
     
-    public LoginResult DoLogin(LoginRequest request)
-    {
+    public LoginResult DoLogin(LoginRequest request) throws Throwable {
     	NameValuePairList postData = new NameValuePairList(); 
         String response = null;
 
@@ -56,14 +269,14 @@ public class UserLoginService {
         		_cookies, 
         		null);
         if (response == null || response.contains("<BODY>\nAn error occurred while processing your request.")) 
-        	return LoginResult.GeneralFailure;
+        	return LoginResult.GENERAL_FAILURE;
         
         RSAResponse rsaResponse = JacksonSerive.Deserialize(RSAResponse.class, response);
 
         if (!rsaResponse.isSuccess())
-            return LoginResult.BadRSA;
+            return LoginResult.BAD_RSA;
         
-        String encryptedPassword;
+        String encryptedPassword = "";
         byte[] passwordBytes = request.getPassword().getBytes("ASCII");
         try {
         	BigInteger modulus = new BigInteger(rsaResponse.getModulus(), 16);
@@ -78,7 +291,7 @@ public class UserLoginService {
         	Cipher cipher = Cipher.getInstance("RSA/ECB/NoPadding");
         	cipher.init(Cipher.ENCRYPT_MODE, pub);
 
-        	encryptedPassword = new String(Base64.getEncoder().encode(cipher.doFinal(passwordBytes)));
+        	encryptedPassword = new String(Base64.encodeBase64(cipher.doFinal(passwordBytes)));
     	} catch(Exception e) {
     	}        
 
@@ -90,81 +303,89 @@ public class UserLoginService {
 
         if (request.isRequiresCaptcha()) { 
         	postData.add("captchagid", request.getCaptchaGID());
-        	postData.Add("captcha_text", request.getCaptchaText());
+        	postData.add("captcha_text", request.getCaptchaText());
         } else {
         	postData.add("captchagid", "-1");
-        	postData.Add("captcha_text", "");
+        	postData.add("captcha_text", "");
     	}
-
-        postData.Add("emailsteamid", (this.Requires2FA || this.RequiresEmail) ? this.SteamID.ToString() : "");
-        postData.Add("emailauth", this.RequiresEmail ? this.EmailCode : "");
-
-        postData.Add("rsatimestamp", rsaResponse.Timestamp);
-        postData.Add("remember_login", "false");
-        postData.Add("oauth_client_id", "DE45CD61");
-        postData.Add("oauth_scope", "read_profile write_profile read_client write_client");
-        postData.Add("loginfriendlyname", "#login_emailauth_friendlyname_mobile");
-        postData.Add("donotcache", Util.GetSystemUnixTime().ToString());
-
-        response = SteamWeb.MobileLoginRequest(APIEndpoints.COMMUNITY_BASE + "/login/dologin", "POST", postData, cookies);
-        if (response == null) return LoginResult.GeneralFailure;
-
-        var loginResponse = JsonConvert.DeserializeObject<LoginResponse>(response);
-
-        if (loginResponse.Message != null && loginResponse.Message.Contains("Incorrect login"))
-        {
-            return LoginResult.BadCredentials;
+        if (request.isRequires2FA() || request.isRequiresEmail()) {
+            postData.add("emailsteamid", Long.toString(request.getSteamID()));        	
+        } else {
+            postData.add("emailsteamid", "");       	
         }
 
-        if (loginResponse.CaptchaNeeded)
-        {
-            this.RequiresCaptcha = true;
-            this.CaptchaGID = loginResponse.CaptchaGID;
-            return LoginResult.NeedCaptcha;
+        if (request.isRequiresEmail()) {
+        	postData.add("emailauth", request.getEmailCode());
+        } else {
+            postData.add("emailsteamid", "");
         }
 
-        if (loginResponse.EmailAuthNeeded)
-        {
-            this.RequiresEmail = true;
-            this.SteamID = loginResponse.EmailSteamID;
-            return LoginResult.NeedEmail;
+        postData.add("rsatimestamp", rsaResponse.getTimestamp());
+        postData.add("remember_login", "false");
+        postData.add("oauth_client_id", "DE45CD61");
+        postData.add("oauth_scope", "read_profile write_profile read_client write_client");
+        postData.add("loginfriendlyname", "#login_emailauth_friendlyname_mobile");
+        postData.add("donotcache", Long.toString(new Date().getTime()));
+
+        response = SteamWeb.MobileLoginRequest(APIEndpoints.COMMUNITY_BASE + "/login/dologin", 
+        		"POST", 
+        		postData, 
+        		_cookies,
+        		null);
+        if (response == null)
+        	return LoginResult.GENERAL_FAILURE;
+
+        LoginResponse loginResponse = JacksonSerive.Deserialize(LoginResponse.class, response);
+
+        if (loginResponse.getMessage() != null && loginResponse.getMessage().contains("Incorrect login")) {
+            return LoginResult.BAD_CREDENTIALS;
         }
 
-        if (loginResponse.TwoFactorNeeded && !loginResponse.Success)
-        {
-            this.Requires2FA = true;
-            return LoginResult.Need2FA;
+        LoginResult result;
+        if (loginResponse.isCaptchaNeeded()) {
+        	result = new LoginResult(LoginResultState.NEED_CAPTCHA);
+        	result.setRequiresCaptcha(true);
+        	result.setCaptchaGID(loginResponse.getCaptchaGID());
+            return result;
         }
 
-        if (loginResponse.Message != null && loginResponse.Message.Contains("too many login failures"))
-        {
-            return LoginResult.TooManyFailedLogins;
+        if (loginResponse.isEmailAuthNeeded()) {
+        	result = new LoginResult(LoginResultState.NEED_EMAIL);
+        	result.setRequiresEmail(true);
+        	result.setSteamID(Long.toString(loginResponse.getEmailSteamID()));
+            return result;
         }
 
-        if (loginResponse.OAuthData == null || loginResponse.OAuthData.OAuthToken == null || loginResponse.OAuthData.OAuthToken.Length == 0)
-        {
-            return LoginResult.GeneralFailure;
+        if (loginResponse.isTwoFactorNeeded() && !loginResponse.isSuccess()) {
+        	result = new LoginResult(LoginResultState.NEED_2FA);
+        	result.setRequires2FA(true);
+            return result;
         }
 
-        if (!loginResponse.LoginComplete)
-        {
-            return LoginResult.BadCredentials;
+        if (loginResponse.getMessage() != null && loginResponse.getMessage().contains("too many login failures")) {
+            return LoginResult.TOO_MANY_FAILED_LOGINS;
         }
-        else
-        {
-            var readableCookies = cookies.GetCookies(new Uri("https://steamcommunity.com"));
-            var oAuthData = loginResponse.OAuthData;
 
-            SessionData session = new SessionData();
-            session.OAuthToken = oAuthData.OAuthToken;
-            session.SteamID = oAuthData.SteamID;
-            session.SteamLogin = session.SteamID + "%7C%7C" + oAuthData.SteamLogin;
-            session.SteamLoginSecure = session.SteamID + "%7C%7C" + oAuthData.SteamLoginSecure;
-            session.WebCookie = oAuthData.Webcookie;
-            session.SessionID = readableCookies["sessionid"].Value;
-            this.Session = session;
-            this.LoggedIn = true;
-            return LoginResult.LoginOkay;
+        if (loginResponse.getOAuthData() == null || loginResponse.getOAuthData().getOAuthToken() == null || loginResponse.getOAuthData().getOAuthToken().length() == 0) {
+            return LoginResult.GENERAL_FAILURE;
+        }
+
+        if (!loginResponse.isLoginComplete()) {
+            return LoginResult.BAD_CREDENTIALS;
+        } else {
+        	result = new LoginResult(LoginResultState.LOGIN_OK);
+        	LoginResponse.OAuth oAuthData = loginResponse.getOAuthData();
+
+            LoginResult.SessionData session = new LoginResult.SessionData();
+            session.setOAuthToken(oAuthData.getOAuthToken());
+            session.setSteamID(oAuthData.getSteamID());
+            session.setSteamLogin(session.getSteamID() + "%7C%7C" + oAuthData.getSteamLogin());
+            session.setSteamLoginSecure(session.getSteamID() + "%7C%7C" + oAuthData.getSteamLoginSecure());
+            session.setWebCookie(oAuthData.getWebcookie());
+            session.setSessionID(_cookies.get("sessionid").value());
+            result.setSession(session);
+            result.setLoggedIn(true);
+            return result;
         }
 }
 }
