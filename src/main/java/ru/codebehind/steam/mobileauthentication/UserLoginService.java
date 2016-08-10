@@ -18,7 +18,8 @@ import ru.codebehind.okhttp.cookies.SimpleCookieJar;
 import ru.codebehind.steam.mobileauthentication.model.LoginRequest;
 import ru.codebehind.steam.mobileauthentication.model.LoginResult;
 import ru.codebehind.steam.mobileauthentication.model.LoginResultState;
-import ru.codebehind.toolbelt.JacksonSerive;
+import ru.codebehind.steam.mobileauthentication.model.SessionData;
+import ru.codebehind.toolbelt.JsonHelper;
 
 public class UserLoginService {
     public static class LoginResponse
@@ -271,7 +272,7 @@ public class UserLoginService {
         if (response == null || response.contains("<BODY>\nAn error occurred while processing your request.")) 
         	return LoginResult.GENERAL_FAILURE;
         
-        RSAResponse rsaResponse = JacksonSerive.Deserialize(RSAResponse.class, response);
+        RSAResponse rsaResponse = JsonHelper.Deserialize(RSAResponse.class, response);
 
         if (!rsaResponse.isSuccess())
             return LoginResult.BAD_RSA;
@@ -335,7 +336,7 @@ public class UserLoginService {
         if (response == null)
         	return LoginResult.GENERAL_FAILURE;
 
-        LoginResponse loginResponse = JacksonSerive.Deserialize(LoginResponse.class, response);
+        LoginResponse loginResponse = JsonHelper.Deserialize(LoginResponse.class, response);
 
         if (loginResponse.getMessage() != null && loginResponse.getMessage().contains("Incorrect login")) {
             return LoginResult.BAD_CREDENTIALS;
@@ -376,7 +377,7 @@ public class UserLoginService {
         	result = new LoginResult(LoginResultState.LOGIN_OK);
         	LoginResponse.OAuth oAuthData = loginResponse.getOAuthData();
 
-            LoginResult.SessionData session = new LoginResult.SessionData();
+            SessionData session = new SessionData();
             session.setOAuthToken(oAuthData.getOAuthToken());
             session.setSteamID(oAuthData.getSteamID());
             session.setSteamLogin(session.getSteamID() + "%7C%7C" + oAuthData.getSteamLogin());

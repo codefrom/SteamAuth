@@ -5,7 +5,7 @@ import java.io.DataOutput;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class JacksonSerive {
+public class JsonHelper {
 	private static ObjectMapper objectMapper = new ObjectMapper();
 	
 	public static <T> T Deserialize(Class<T> clazz, String src) throws Exception {

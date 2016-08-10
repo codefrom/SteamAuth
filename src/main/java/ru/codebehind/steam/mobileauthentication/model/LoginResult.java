@@ -6,52 +6,6 @@ public class LoginResult {
 	public static final LoginResult BAD_RSA = new LoginResult(LoginResultState.BAD_RSA);
 	public static final LoginResult BAD_CREDENTIALS = new LoginResult(LoginResultState.BAD_CREDENTIALS);
 	public static final LoginResult TOO_MANY_FAILED_LOGINS = new LoginResult(LoginResultState.TOO_MANY_FAILED_LOGINS);
-	
-	public static class SessionData {
-        private String sessionID;
-        private String steamLogin;
-        private String steamLoginSecure;
-        private String webCookie;
-        private String oauthToken;
-        private long steamID;
-        
-		public String getSessionID() {
-			return sessionID;
-		}
-		public void setSessionID(String sessionID) {
-			this.sessionID = sessionID;
-		}
-		public String getSteamLogin() {
-			return steamLogin;
-		}
-		public void setSteamLogin(String steamLogin) {
-			this.steamLogin = steamLogin;
-		}
-		public String getSteamLoginSecure() {
-			return steamLoginSecure;
-		}
-		public void setSteamLoginSecure(String steamLoginSecure) {
-			this.steamLoginSecure = steamLoginSecure;
-		}
-		public String getWebCookie() {
-			return webCookie;
-		}
-		public void setWebCookie(String webCookie) {
-			this.webCookie = webCookie;
-		}
-		public String getOAuthToken() {
-			return oauthToken;
-		}
-		public void setOAuthToken(String oauthToken) {
-			this.oauthToken = oauthToken;
-		}
-		public long getSteamID() {
-			return steamID;
-		}
-		public void setSteamID(long steamID) {
-			this.steamID = steamID;
-		}       
-	}
 
 	private LoginResultState state;
 	private boolean requiresCaptcha;
