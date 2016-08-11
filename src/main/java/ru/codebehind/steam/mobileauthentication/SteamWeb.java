@@ -30,11 +30,20 @@ public class SteamWeb {
     		NameValuePairList data, 
     		CookieJar cookies, 
     		NameValuePairList headers) throws Throwable {
-        return DoRequest(url, 
+    	String dataString = "";
+    	if (data != null) {
+	    	HttpUrl.Builder builder = HttpUrl.parse("http://localhost").newBuilder();
+	    	for (NameValuePairList.NameValuePair dataItem : data) {
+	    		builder.addQueryParameter(dataItem.getName(), dataItem.getValue());			
+			}
+	    	HttpUrl httpUrl = builder.build();
+			dataString = httpUrl.query();
+    	}
+		return DoRequest(url, 
         				 method,
-        				 null,
+        				 dataString,
         				 headers,
-        				 data, 
+        				 null, 
         				 cookies, 
         				 APIEndpoints.COMMUNITY_BASE + "/mobilelogin?oauth_client_id=DE45CD61&oauth_scope=read_profile%20write_profile%20read_client%20write_client");
     }
@@ -79,9 +88,11 @@ public class SteamWeb {
     	}
     	
     	if (method.equalsIgnoreCase("post")) {
+    		if (dataString != null) {
     		reqBuilder.post(RequestBody.create(
 					MediaType.parse("application/x-www-form-urlencoded; charset=UTF-8"), 
 					dataString));
+    		}
 		} else {
 			reqBuilder.get();
 		}

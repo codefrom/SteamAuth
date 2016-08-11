@@ -10,6 +10,7 @@ import javax.crypto.Cipher;
 
 import org.apache.commons.codec.binary.Base64;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import okhttp3.Cookie;
@@ -22,8 +23,10 @@ import ru.codebehind.steam.mobileauthentication.model.SessionData;
 import ru.codebehind.toolbelt.JsonHelper;
 
 public class UserLoginService {
+    @JsonIgnoreProperties(ignoreUnknown=true)
     public static class LoginResponse
     {
+        @JsonIgnoreProperties(ignoreUnknown=true)
         public static class OAuth
         {
             @JsonProperty(value="steamid")
@@ -182,6 +185,7 @@ public class UserLoginService {
 		}
     }
     
+    @JsonIgnoreProperties(ignoreUnknown=true)
     public static class RSAResponse
     {
         @JsonProperty(value="success")
@@ -249,9 +253,9 @@ public class UserLoginService {
         if (_cookies.count() == 0)
         {
             //Generate a SessionID
-        	_cookies.add((new Cookie.Builder()).name("mobileClientVersion").value("0 (2.1.3)").path("/").domain(".steamcommunity.com").build());
-        	_cookies.add((new Cookie.Builder()).name("mobileClient").value("android").path("/").domain(".steamcommunity.com").build());
-        	_cookies.add((new Cookie.Builder()).name("Steam_Language").value("english").path("/").domain(".steamcommunity.com").build());
+        	_cookies.add((new Cookie.Builder()).name("mobileClientVersion").value("0 (2.1.3)").path("/").domain("steamcommunity.com").build());
+        	_cookies.add((new Cookie.Builder()).name("mobileClient").value("android").path("/").domain("steamcommunity.com").build());
+        	_cookies.add((new Cookie.Builder()).name("Steam_Language").value("english").path("/").domain("steamcommunity.com").build());
 
         	NameValuePairList headers = new NameValuePairList();
             headers.add("X-Requested-With", "com.valvesoftware.android.steam.community");
@@ -278,7 +282,8 @@ public class UserLoginService {
             return LoginResult.BAD_RSA;
         
         String encryptedPassword = "";
-        byte[] passwordBytes = request.getPassword().getBytes("ASCII");
+//        byte[] passwordBytes = request.getPassword().getBytes("ASCII");
+        byte[] passwordBytes = request.getPassword().getBytes();        
         try {
         	BigInteger modulus = new BigInteger(rsaResponse.getModulus(), 16);
         	BigInteger exponent = new BigInteger(rsaResponse.getExponent(), 16);

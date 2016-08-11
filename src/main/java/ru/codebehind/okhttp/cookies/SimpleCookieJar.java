@@ -10,7 +10,7 @@ import okhttp3.HttpUrl;
 import okhttp3.CookieJar;
 
 public class SimpleCookieJar implements CookieJar {
-	private static final Cookie EMPTY_COOKIE = new Cookie.Builder().build(); 
+	private static final Cookie EMPTY_COOKIE = new Cookie.Builder().name("DUMMY").value("DUMMY").domain("DUMMY").build(); 
 	ArrayList<Cookie> cookies = new ArrayList<Cookie>();
 	
 	private void removeExpiredCookies() {
