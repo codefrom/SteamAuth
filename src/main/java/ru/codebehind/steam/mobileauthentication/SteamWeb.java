@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -13,6 +14,23 @@ import ru.codebehind.okhttp.NameValuePairList;
 import ru.codebehind.okhttp.cookies.SimpleCookieJar;
 
 public class SteamWeb {
+	public static class UserAgentInterceptor implements Interceptor {
+
+	    private final String userAgent;
+
+	    public UserAgentInterceptor(String userAgent) {
+	        this.userAgent = userAgent;
+	    }    
+	    
+	    public Response intercept(Chain chain) throws IOException {
+	        Request originalRequest = chain.request();
+	        Request requestWithUserAgent = originalRequest.newBuilder()
+	            .header("User-Agent", userAgent)
+	            .build();
+	        return chain.proceed(requestWithUserAgent);
+	    }
+	}
+	
 	public static SimpleCookieJar StaticCookieJar = new SimpleCookieJar();
 	public static String UserAgent = "Mozilla/5.0 (Linux; Android 4.4.4; Xperia S Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/33.0.0.0 Mobile Safari/537.36";
 	
@@ -61,6 +79,7 @@ public class SteamWeb {
     	}
 
     	OkHttpClient client = new OkHttpClient.Builder()
+    			.addNetworkInterceptor(new UserAgentInterceptor(UserAgent))
     			.cookieJar(realCookieJar)
     			.build();
     	

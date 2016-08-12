@@ -1,5 +1,6 @@
 package ru.codebehind.steam.mobileauthentication;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.PublicKey;
@@ -281,25 +282,7 @@ public class UserLoginService {
         if (!rsaResponse.isSuccess())
             return LoginResult.BAD_RSA;
         
-        String encryptedPassword = "";
-//        byte[] passwordBytes = request.getPassword().getBytes("ASCII");
-        byte[] passwordBytes = request.getPassword().getBytes();        
-        try {
-        	BigInteger modulus = new BigInteger(rsaResponse.getModulus(), 16);
-        	BigInteger exponent = new BigInteger(rsaResponse.getExponent(), 16);
-        			
-        	RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, exponent);
-
-        	KeyFactory factory = KeyFactory.getInstance("RSA");
-        			
-        	PublicKey pub = factory.generatePublic(spec);
-        	
-        	Cipher cipher = Cipher.getInstance("RSA/ECB/NoPadding");
-        	cipher.init(Cipher.ENCRYPT_MODE, pub);
-
-        	encryptedPassword = new String(Base64.encodeBase64(cipher.doFinal(passwordBytes)));
-    	} catch(Exception e) {
-    	}        
+        String encryptedPassword = getSecurePassword(request.getPassword(), rsaResponse.getModulus(), rsaResponse.getExponent());        
 
         postData.clear();
         postData.add("username", request.getUsername());
@@ -343,11 +326,12 @@ public class UserLoginService {
 
         LoginResponse loginResponse = JsonHelper.Deserialize(LoginResponse.class, response);
 
+        LoginResult result;
+
         if (loginResponse.getMessage() != null && loginResponse.getMessage().contains("Incorrect login")) {
             return LoginResult.BAD_CREDENTIALS;
         }
 
-        LoginResult result;
         if (loginResponse.isCaptchaNeeded()) {
         	result = new LoginResult(LoginResultState.NEED_CAPTCHA);
         	result.setRequiresCaptcha(true);
@@ -394,4 +378,26 @@ public class UserLoginService {
             return result;
         }
 }
+
+	public String getSecurePassword(String password, String modulusHex, String exponentHex) throws UnsupportedEncodingException {
+		String encryptedPassword = "";
+		byte[] passwordBytes = password.getBytes("ASCII");        
+        try {
+        	BigInteger modulus = new BigInteger(modulusHex, 16);
+        	BigInteger exponent = new BigInteger(exponentHex, 16);
+        			
+        	KeyFactory factory = KeyFactory.getInstance("RSA");
+        	RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, exponent);
+        	PublicKey pub = factory.generatePublic(spec);
+        	
+        	Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1PADDING");
+        	//Cipher cipher = Cipher.getInstance("RSA");
+        	cipher.init(Cipher.ENCRYPT_MODE, pub);
+
+        	byte[] bytes = cipher.doFinal(passwordBytes);
+			encryptedPassword = Base64.encodeBase64String(bytes);
+    	} catch(Exception e) {
+    	}
+		return encryptedPassword;
+	}
 }
