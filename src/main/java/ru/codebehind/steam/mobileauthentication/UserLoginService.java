@@ -34,29 +34,29 @@ public class UserLoginService {
     @JsonIgnoreProperties(ignoreUnknown=true)
     public static class LoginResponse
     {
-    	public static class OAuthDeserializer extends StdDeserializer<LoginResponse.OAuth> {
-			private static final long serialVersionUID = 8032829741835168912L;
+        public static class OAuthDeserializer extends StdDeserializer<LoginResponse.OAuth> {
+            private static final long serialVersionUID = 8032829741835168912L;
 
-			public OAuthDeserializer() { 
-    	        this(null); 
-    	    } 
-    	 
-    	    public OAuthDeserializer(Class<?> vc) { 
-    	        super(vc); 
-    	    }
-    	    
-    		@Override
-    		public OAuth deserialize(JsonParser p, DeserializationContext ctxt)
-    				throws IOException, JsonProcessingException {
-    			try {
-					return JsonHelper.Deserialize(OAuth.class, p.getText());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-    			return null;
-    		}	
-    	}
-    	
+            public OAuthDeserializer() { 
+                this(null); 
+            } 
+         
+            public OAuthDeserializer(Class<?> vc) { 
+                super(vc); 
+            }
+            
+            @Override
+            public OAuth deserialize(JsonParser p, DeserializationContext ctxt)
+                    throws IOException, JsonProcessingException {
+                try {
+                    return JsonHelper.Deserialize(OAuth.class, p.getText());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }    
+        }
+        
         @JsonIgnoreProperties(ignoreUnknown=true)
         public static class OAuth
         {
@@ -73,23 +73,7 @@ public class UserLoginService {
             private String steamLoginSecure;
 
             @JsonProperty(value="webcookie")
-            private String webcookie;
-            
-            /*public OAuth() {
-        	}
-            
-            public OAuth(String oauth) {
-				try {
-					OAuth oauthObj = JsonHelper.Deserialize(OAuth.class, oauth);
-					this.oauthToken = oauthObj.oauthToken;
-					this.steamID = oauthObj.steamID;
-					this.steamLogin = oauthObj.steamLogin;
-					this.steamLoginSecure = oauthObj.steamLoginSecure;
-					this.webcookie = oauthObj.webcookie;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}*/
+            private String webcookie;            
 
 			public long getSteamID() {
 				return steamID;
@@ -308,12 +292,11 @@ public class UserLoginService {
         	NameValuePairList headers = new NameValuePairList();
             headers.add("X-Requested-With", "com.valvesoftware.android.steam.community");
 
-            /*String oauthResponse = */SteamWeb.MobileLoginRequest("https://steamcommunity.com/login?oauth_client_id=DE45CD61&oauth_scope=read_profile%20write_profile%20read_client%20write_client", 
+            SteamWeb.MobileLoginRequest("https://steamcommunity.com/login?oauth_client_id=DE45CD61&oauth_scope=read_profile%20write_profile%20read_client%20write_client", 
             		"GET", 
             		null, 
             		_cookies, 
             		headers);
-            //System.out.println(oauthResponse);
         }
 
         postData.add("username", request.getUsername());
