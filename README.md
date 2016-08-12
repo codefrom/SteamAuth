@@ -6,7 +6,7 @@ Idea and algorithms taken from geel9/SteamAuth
 
 # Functionality
 Currently this library can:
-* Nothing
+* Login to a user account
 
 # Requirements
 
@@ -15,13 +15,12 @@ Currently this library can:
 # Upcoming Features
 (in priority order)
 * Emulate installed steam mobile authenticator for android (with authenticator working on the phone)
-* Login to a user account
 * Fetch, accept, and deny mobile confirmations
 
 ## Far far away
+* Generate login codes for a given Shared Secret
 * Link and activate a new mobile authenticator to a user account after logging in
 * Remove itself from an account
-* Generate login codes for a given Shared Secret
 
 # Steam Mobile Reverse
 Needed params:
