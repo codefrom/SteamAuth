@@ -3,12 +3,11 @@ package ru.codebehind.steam.mobileauthentication;
 import java.io.IOException;
 
 import okhttp3.CookieJar;
+import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import ru.codebehind.okhttp.NameValuePairList;
 import ru.codebehind.okhttp.cookies.SimpleCookieJar;
@@ -48,18 +47,9 @@ public class SteamWeb {
     		NameValuePairList data, 
     		CookieJar cookies, 
     		NameValuePairList headers) throws Throwable {
-    	String dataString = "";
-    	if (data != null) {
-	    	HttpUrl.Builder builder = HttpUrl.parse("http://localhost").newBuilder();
-	    	for (NameValuePairList.NameValuePair dataItem : data) {
-	    		builder.addQueryParameter(dataItem.getName(), dataItem.getValue());			
-			}
-	    	HttpUrl httpUrl = builder.build();
-			dataString = httpUrl.query();
-    	}
 		return DoRequest(url, 
         				 method,
-        				 dataString,
+        				 data,
         				 headers,
         				 null, 
         				 cookies, 
@@ -68,7 +58,7 @@ public class SteamWeb {
     
     public static String DoRequest(String url, 
     		String method,
-    		String dataString,
+    		NameValuePairList data,
     		NameValuePairList headers, 
     		NameValuePairList params,
     		CookieJar cookieJar,
@@ -107,10 +97,13 @@ public class SteamWeb {
     	}
     	
     	if (method.equalsIgnoreCase("post")) {
-    		if (dataString != null) {
-    		reqBuilder.post(RequestBody.create(
-					MediaType.parse("application/x-www-form-urlencoded; charset=UTF-8"), 
-					dataString));
+    		if (data != null) {
+    			FormBody.Builder formBuilder = new FormBody.Builder();
+    			for (NameValuePairList.NameValuePair dataItem : data) {
+    				formBuilder.add(dataItem.getName(), dataItem.getValue());
+				}
+    			FormBody form = formBuilder.build();
+				reqBuilder.post(form);
     		}
 		} else {
 			reqBuilder.get();

@@ -1,17 +1,17 @@
 package ru.codebehind.steam.mobileauthentication.model;
 
 public class LoginRequest {
-    private String username;
-    private String password;
+    private String username = "";
+    private String password = "";
     private long steamID;
     private boolean requiresCaptcha;
     private boolean requiresEmail;
     private boolean requires2FA;
-    private String captchaGID;
-    private String captchaText;
-    private String emailDomain;
-    private String emailCode;
-    private String twoFactorCode;
+    private String captchaGID = "";
+    private String captchaText = "";
+    private String emailDomain = "";
+    private String emailCode = "";
+    private String twoFactorCode = "";
     
 	public String getUsername() {
 		return username;

@@ -2,6 +2,7 @@ package ru.codebehind.steam.mobileauthentication;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import ru.codebehind.okhttp.NameValuePairList;
 import ru.codebehind.toolbelt.DateHelper;
 import ru.codebehind.toolbelt.JsonHelper;
 
@@ -49,7 +50,9 @@ public class TimeAligner {
     public static void AlignTime() throws Throwable {
         long currentTime = DateHelper.GetSystemUnixTime();
         try {
-        	String response = SteamWeb.DoRequest(APIEndpoints.TWO_FACTOR_TIME_QUERY, "POST", "steamid=0", null, null, null, null);
+        	NameValuePairList postData = new NameValuePairList();
+        	postData.add("steamid", "0");
+        	String response = SteamWeb.DoRequest(APIEndpoints.TWO_FACTOR_TIME_QUERY, "POST", postData, null, null, null, null);
             TimeQuery query = JsonHelper.Deserialize(TimeQuery.class, response);
             TimeAligner._timeDifference = (int)(query.getResponse().getServerTime() - currentTime);
             TimeAligner._aligned = true;

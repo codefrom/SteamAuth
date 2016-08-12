@@ -294,7 +294,7 @@ public class SteamGuardAccount {
         SimpleCookieJar cookies = new SimpleCookieJar();
         this.session.addCookies(cookies);
 
-        String response = SteamWeb.DoRequest(url, "GET", "", null, null, cookies, null);
+        String response = SteamWeb.DoRequest(url, "GET", null, null, null, cookies, null);
 
         /*So you're going to see this abomination and you're going to be upset.
           It's understandable. But the thing is, regex for HTML -- while awful -- makes this way faster than parsing a DOM, plus we don't need another library.
@@ -381,7 +381,9 @@ public class SteamGuardAccount {
         String url = APIEndpoints.MOBILEAUTH_GETWGTOKEN;
         String response = null;
         try  {
-            response = SteamWeb.DoRequest(url, "POST", "access_token=" + session.getOAuthToken(), null, null, null, null);
+        	NameValuePairList postData = new NameValuePairList();
+        	postData.add("access_token", session.getOAuthToken());
+            response = SteamWeb.DoRequest(url, "POST", postData, null, null, null, null);
         } catch (Exception e) {
             return false;
         }
@@ -455,7 +457,7 @@ public class SteamGuardAccount {
         session.addCookies(cookies);
         String referer = GenerateConfirmationURL();
 
-        String response = SteamWeb.DoRequest(url, "GET", "", null, query, cookies, referer);
+        String response = SteamWeb.DoRequest(url, "GET", null, null, query, cookies, referer);
         if (response == null)
         	return false;
 
