@@ -49,15 +49,15 @@ public class SessionData {
 	}
 
 	public void addCookies(SimpleCookieJar cookies) {
-        cookies.add(new Cookie.Builder().name("mobileClientVersion").value("0 (2.1.3)").path("/").domain(".steamcommunity.com").build());
-        cookies.add(new Cookie.Builder().name("mobileClient").value("android").path("/").domain(".steamcommunity.com").build());
+        cookies.add(new Cookie.Builder().name("mobileClientVersion").value("0 (2.1.3)").path("/").domain("steamcommunity.com").build());
+        cookies.add(new Cookie.Builder().name("mobileClient").value("android").path("/").domain("steamcommunity.com").build());
 
-        cookies.add(new Cookie.Builder().name("steamid").value(Long.toString(steamID)).path("/").domain(".steamcommunity.com").build());
-        cookies.add(new Cookie.Builder().name("steamLogin").value(steamLogin).path("/").domain(".steamcommunity.com").httpOnly().build());
-        cookies.add(new Cookie.Builder().name("steamLoginSecure").value(steamLoginSecure).path("/").domain(".steamcommunity.com").httpOnly().secure().build());
+        cookies.add(new Cookie.Builder().name("steamid").value(Long.toString(steamID)).path("/").domain("steamcommunity.com").build());
+        cookies.add(new Cookie.Builder().name("steamLogin").value(steamLogin).path("/").domain("steamcommunity.com").httpOnly().build());
+        cookies.add(new Cookie.Builder().name("steamLoginSecure").value(steamLoginSecure).path("/").domain("steamcommunity.com").httpOnly().secure().build());
 
-        cookies.add(new Cookie.Builder().name("Steam_Language").value("english").path("/").domain(".steamcommunity.com").build());
-        cookies.add(new Cookie.Builder().name("dob").value("english").path("/").domain(".steamcommunity.com").build());
-        cookies.add(new Cookie.Builder().name("sessionid").value(sessionID).path("/").domain(".steamcommunity.com").build());
+        cookies.add(new Cookie.Builder().name("Steam_Language").value("english").path("/").domain("steamcommunity.com").build());
+        cookies.add(new Cookie.Builder().name("dob").value("english").path("/").domain("steamcommunity.com").build());
+        cookies.add(new Cookie.Builder().name("sessionid").value(sessionID).path("/").domain("steamcommunity.com").build());
 	}
 }

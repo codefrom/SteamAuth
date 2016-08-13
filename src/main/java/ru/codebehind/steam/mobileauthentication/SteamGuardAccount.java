@@ -16,6 +16,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -27,7 +28,9 @@ import ru.codebehind.steam.mobileauthentication.model.SessionData;
 import ru.codebehind.toolbelt.JsonHelper;
 
 public class SteamGuardAccount {
+    @JsonIgnoreProperties(ignoreUnknown=true)
 	public static class RefreshSessionDataResponse {
+        @JsonIgnoreProperties(ignoreUnknown=true)
         public static class RefreshSessionDataInternalResponse
         {
             @JsonProperty(value="token")
@@ -65,8 +68,10 @@ public class SteamGuardAccount {
 		}        
     }
 
+    @JsonIgnoreProperties(ignoreUnknown=true)
     public static class RemoveAuthenticatorResponse
     {
+        @JsonIgnoreProperties(ignoreUnknown=true)
         public static class RemoveAuthenticatorInternalResponse
         {
             @JsonProperty(value="success")
@@ -93,7 +98,8 @@ public class SteamGuardAccount {
 		}
     }
 
-    private class SendConfirmationResponse
+    @JsonIgnoreProperties(ignoreUnknown=true)
+    public static class SendConfirmationResponse
     {
         @JsonProperty(value="success")
         private boolean success;
@@ -107,7 +113,8 @@ public class SteamGuardAccount {
 		}        
     }
 
-    private class ConfirmationDetailsResponse
+    @JsonIgnoreProperties(ignoreUnknown=true)
+    public static class ConfirmationDetailsResponse
     {
         @JsonProperty(value="success")
         private boolean success;
@@ -132,7 +139,8 @@ public class SteamGuardAccount {
 		}        
     }
     
-	public static class Config {
+    @JsonIgnoreProperties(ignoreUnknown=true)
+    public static class Config {
         @JsonProperty(value="shared_secret")
         private String sharedSecret;
 
@@ -276,10 +284,17 @@ public class SteamGuardAccount {
 		private static final long serialVersionUID = 111194300708646219L;
     }
     
-    
     public SessionData session;
 	
-    final ThreadFactory threadFactory = new ThreadFactoryBuilder()
+    public SessionData getSession() {
+		return session;
+	}
+
+	public void setSession(SessionData session) {
+		this.session = session;
+	}
+
+	final ThreadFactory threadFactory = new ThreadFactoryBuilder()
 	        .setNameFormat("SteamGuardAccount-%d")
 	        .setDaemon(true)
 	        .build();
@@ -288,6 +303,10 @@ public class SteamGuardAccount {
 
     private final static byte[] STEAM_GUARD_CODE_TRANSLATIONS = new byte[] { 50, 51, 52, 53, 54, 55, 56, 57, 66, 67, 68, 70, 71, 72, 74, 75, 77, 78, 80, 81, 82, 84, 86, 87, 88, 89 };
 
+    public SteamGuardAccount(Config config) {
+    	this.setConfig(config);
+    }
+    
     public Confirmation[] FetchConfirmations() throws Throwable {
         String url = GenerateConfirmationURL();
 
@@ -309,7 +328,7 @@ public class SteamGuardAccount {
         Matcher confKeys = confKeyRegex.matcher(response);
         Matcher confDescs = confDescRegex.matcher(response);
 
-        if (response == null || !(confIDs.matches() && confKeys.matches() && confDescs.matches())) {
+        if (response == null || !(confIDs.find() && confKeys.find() && confDescs.find())) {
             if (response == null || !response.contains("<div>Nothing to confirm</div>")) {
                 throw new WGTokenInvalidException();
             }
@@ -318,7 +337,7 @@ public class SteamGuardAccount {
 
 
         ArrayList<Confirmation> ret = new ArrayList<Confirmation>();
-        while(confIDs.find() && confKeys.find() && confDescs.find()) {
+    	do {
             String confID = confIDs.group(1);
             String confKey = confKeys.group(1);
             String confDesc = confDescs.group(1);
@@ -327,7 +346,8 @@ public class SteamGuardAccount {
             conf.setID(confID);
             conf.setKey(confKey);
             ret.add(conf);
-        }
+    	} while(confIDs.find() && confKeys.find() && confDescs.find());
+
 
         return ret.toArray(new Confirmation[0]);
     }
@@ -499,14 +519,14 @@ public class SteamGuardAccount {
     }
 
     public NameValuePairList GenerateConfirmationQueryParams(String tag) throws Throwable {
-        if (config.getDeviceID() == null ||
-        	config.getDeviceID().equals(""))
+        if (getConfig().getDeviceID() == null ||
+        	getConfig().getDeviceID().equals(""))
             throw new Exception("Device ID is not present");
 
         long time = TimeAligner.GetSteamTime();
 
         NameValuePairList ret = new NameValuePairList();
-        ret.add("p", config.getDeviceID());
+        ret.add("p", getConfig().getDeviceID());
         ret.add("a", Long.toString(session.getSteamID()));
         ret.add("k", _generateConfirmationHashForTime(time, tag));
         ret.add("t", Long.toString(time));
@@ -517,7 +537,7 @@ public class SteamGuardAccount {
     }
 
     private String _generateConfirmationHashForTime(long time, String tag) throws Throwable {
-        byte[] decode = Base64.decodeBase64(config.getIdentitySecret());
+        byte[] decode = Base64.decodeBase64(getConfig().getIdentitySecret());
         int n2 = 8;
         if (tag != null)
         {
@@ -554,11 +574,59 @@ public class SteamGuardAccount {
     		byte[] hashedData = mac.doFinal(array);
 
     		String encodedData = Base64.encodeBase64String(hashedData);
-    		String hash = URLEncoder.encode(encodedData, "UTF8");
-            return hash;
+    		//String hash = URLEncoder.encode(encodedData, "UTF8");
+            return encodedData;
         } catch (Exception e) {
         	e.printStackTrace();
             return null;
         }
     }
+
+    public String GenerateSteamGuardCode() throws Throwable {
+        return GenerateSteamGuardCodeForTime(TimeAligner.GetSteamTime());
+    }
+
+    public String GenerateSteamGuardCodeForTime(long time) {
+        if (config.getSharedSecret() == null || config.getSharedSecret().length() == 0) {
+            return "";
+        }
+
+        byte[] sharedSecretArray = Base64.decodeBase64(config.getSharedSecret());
+        byte[] timeArray = new byte[8];
+
+        time /= 30L;
+
+        for (int i = 8; i > 0; i--) {
+            timeArray[i - 1] = (byte)time;
+            time >>= 8;
+        }
+        
+        try {
+        	SecretKeySpec signingKey = new SecretKeySpec(sharedSecretArray, "HmacSHA1");
+    		Mac mac = Mac.getInstance("HmacSHA1");
+    		mac.init(signingKey);
+    		byte[] hashedData = mac.doFinal(timeArray);
+            byte[] codeArray = new byte[5];
+            byte b = (byte)(hashedData[19] & 0xF);
+            int codePoint = (hashedData[b] & 0x7F) << 24 | (hashedData[b + 1] & 0xFF) << 16 | (hashedData[b + 2] & 0xFF) << 8 | (hashedData[b + 3] & 0xFF);
+
+            for (int i = 0; i < 5; ++i) {
+                codeArray[i] = STEAM_GUARD_CODE_TRANSLATIONS[codePoint % STEAM_GUARD_CODE_TRANSLATIONS.length];
+                codePoint /= STEAM_GUARD_CODE_TRANSLATIONS.length;
+            }
+            
+            return new String(codeArray, "UTF-8");
+        } catch (Exception e) {
+        	e.printStackTrace();
+            return null;
+        }        
+    }
+    
+	public Config getConfig() {
+		return config;
+	}
+
+	public void setConfig(Config config) {
+		this.config = config;
+	}
 }

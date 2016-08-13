@@ -91,6 +91,7 @@ public class UserLoginServiceTest extends UserLoginService {
 	@Test
 	public final void testDoLogin_OK() throws Throwable {
 		LoginRequest req = new LoginRequest();
+		// TODO : change it to valid user name password for testing
 		req.setUsername("xxx");
 		req.setPassword("xxx");
 		LoginResult res = this.DoLogin(req);

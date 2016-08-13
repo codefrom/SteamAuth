@@ -4,27 +4,37 @@ Steam Mobile Guard authenticator, written in Java
 # Credits
 Idea and algorithms taken from geel9/SteamAuth
 
-# Functionality
+# Features
 Currently this library can:
-* Login to a user account
-
-# Requirements
-
-# Usage
-
-# Upcoming Features
-(in priority order)
 * Emulate installed steam mobile authenticator for android (with authenticator working on the phone)
+* Login to a user account
+* Generate login codes for a given Shared Secret
 * Fetch, accept, and deny mobile confirmations
 
-## Far far away
-* Generate login codes for a given Shared Secret
+## Far far away features (maybe some day)
 * Link and activate a new mobile authenticator to a user account after logging in
 * Remove itself from an account
 
-# Steam Mobile Reverse
-Needed params:
-* identity_secret - in "Steamguard-[SteamID]" file in /data/data/com.valvesoftware.android.steam.community/files
-* deviceid - in "steam.uuid.xml"
+# Requirements
+This library using:
+* JUnit
+* FasterXML Jackson
+* OkHTTP
+* Apache Commons - codec
 
-EDIT: Already some guide here - https://github.com/hyt47/SteamDesktopAuthenticator-Mod-47/wiki/Manually-import-your-Steam-Account-from-Android
+# Usage
+No time to explain :)
+Some usage examplex:
+## Accept/deny confirmation
+1) Create SteamGuardAccount with appropriate config
+2) Call UserLoginService.DoLogin with username and password
+2.1) If LoginResult.State = LoginResultState.NEED_2FA then call UserLoginService.DoLogin, but now set Requires2FA to true and TwoFactorCode to SteamGuardAccount.GenerateSteamGuardCode value for request
+2.2) If LoginResult.State = LoginResultState.NEED_CAPTCHA then call UserLoginService.DoLogin, but now set RequiresCaptcha to true, CaptchaGID to CaptchaGID from response and CaptchaText to text from CAPTCHA at "https://steamcommunity.com/public/captcha.php?gid=" + CaptchaGID
+3) Set received session to the SteamGuardAccount
+4) Call SteamGuardAccount.FetchConfirmations to get array of confirmations
+5.1) Call SteamGuardAccount.AcceptConfirmation to accept confirmation
+5.2) Call SteamGuardAccount.DenyConfirmation to deny confirmation
+
+# Steam Mobile Reverse
+Already some one made guide here - https://github.com/hyt47/SteamDesktopAuthenticator-Mod-47/wiki/Manually-import-your-Steam-Account-from-Android
+P.S. You'll need "Steamguard-[SteamID]" file in /data/data/com.valvesoftware.android.steam.community/files

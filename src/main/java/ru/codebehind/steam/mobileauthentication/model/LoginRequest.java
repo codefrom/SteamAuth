@@ -1,5 +1,8 @@
 package ru.codebehind.steam.mobileauthentication.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class LoginRequest {
     private String username = "";
     private String password = "";

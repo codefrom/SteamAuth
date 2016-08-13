@@ -1,5 +1,6 @@
 package ru.codebehind.steam.mobileauthentication;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import ru.codebehind.okhttp.NameValuePairList;
@@ -11,7 +12,9 @@ import ru.codebehind.toolbelt.JsonHelper;
 /// Necessary to generate up-to-date codes. In general, this will have an error of less than a second, assuming Steam is operational.
 /// </summary
 public class TimeAligner {
-    public static class TimeQuery {
+	@JsonIgnoreProperties(ignoreUnknown=true)
+	public static class TimeQuery {
+		@JsonIgnoreProperties(ignoreUnknown=true)
         public static class TimeQueryResponse {
             @JsonProperty(value="server_time")
             private long serverTime;

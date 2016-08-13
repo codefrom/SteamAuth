@@ -87,8 +87,9 @@ public class SteamWeb {
     			.addHeader("Accept", "application/xml")
     			.addHeader("Accept", "text/xml")
     			.addHeader("Accept", "*/*")
-    			.header("User-Agent", UserAgent)
-    			.header("Referer", referer);
+    			.header("User-Agent", UserAgent);
+    	if (referer != null)
+			reqBuilder.header("Referer", referer);
     	
     	if (headers != null) {
 	    	for (NameValuePairList.NameValuePair header : headers) {
