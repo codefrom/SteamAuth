@@ -26,14 +26,14 @@ This library using:
 No time to explain :)
 Some usage examplex:
 ## Accept/deny confirmation
-1) Create SteamGuardAccount with appropriate config
-2) Call UserLoginService.DoLogin with username and password
-2.1) If LoginResult.State = LoginResultState.NEED_2FA then call UserLoginService.DoLogin, but now set Requires2FA to true and TwoFactorCode to SteamGuardAccount.GenerateSteamGuardCode value for request
-2.2) If LoginResult.State = LoginResultState.NEED_CAPTCHA then call UserLoginService.DoLogin, but now set RequiresCaptcha to true, CaptchaGID to CaptchaGID from response and CaptchaText to text from CAPTCHA at "https://steamcommunity.com/public/captcha.php?gid=" + CaptchaGID
-3) Set received session to the SteamGuardAccount
-4) Call SteamGuardAccount.FetchConfirmations to get array of confirmations
-5.1) Call SteamGuardAccount.AcceptConfirmation to accept confirmation
-5.2) Call SteamGuardAccount.DenyConfirmation to deny confirmation
+1. Create SteamGuardAccount with appropriate config
+1. Call UserLoginService.DoLogin with username and password
+   1. If LoginResult.State = LoginResultState.NEED_2FA then call UserLoginService.DoLogin, but now set Requires2FA to true and TwoFactorCode to SteamGuardAccount.GenerateSteamGuardCode value for request
+   1. If LoginResult.State = LoginResultState.NEED_CAPTCHA then call UserLoginService.DoLogin, but now set RequiresCaptcha to true, CaptchaGID to CaptchaGID from response and CaptchaText to text from CAPTCHA at "https://steamcommunity.com/public/captcha.php?gid=" + CaptchaGID
+1. Set received session to the SteamGuardAccount
+1. Call SteamGuardAccount.FetchConfirmations to get array of confirmations
+   1. Call SteamGuardAccount.AcceptConfirmation to accept confirmation
+   1. Call SteamGuardAccount.DenyConfirmation to deny confirmation
 
 # Steam Mobile Reverse
 Already some one made guide here - https://github.com/hyt47/SteamDesktopAuthenticator-Mod-47/wiki/Manually-import-your-Steam-Account-from-Android
