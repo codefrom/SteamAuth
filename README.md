@@ -37,4 +37,5 @@ Some usage examplex:
 
 # Steam Mobile Reverse
 Already some one made guide here - https://github.com/hyt47/SteamDesktopAuthenticator-Mod-47/wiki/Manually-import-your-Steam-Account-from-Android
+
 P.S. You'll need "Steamguard-[SteamID]" file in /data/data/com.valvesoftware.android.steam.community/files
